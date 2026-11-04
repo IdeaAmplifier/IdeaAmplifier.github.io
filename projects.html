@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IdeaAmplifier 專案地圖</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* 設計：控制台式索引 — 冷色紙底、電光青重點、窄體標籤、狀態 LED。 */
+  :root{
+    --bg:#f4f6f7; --surface:#ffffff; --surface-2:#eef1f3;
+    --fg:#12181d; --muted:#5b6770; --line:#d8dee3;
+    --accent:#0a7f9c; --accent-ink:#ffffff; --accent-soft:rgba(10,127,156,.10);
+    --st-ship:#1f8a5b; --st-beta:#a86a12; --st-dev:#6b7780; --st-research:#0a7f9c; --st-proto:#6b7780;
+    --mono:"IBM Plex Mono",Menlo,monospace;
+    --display:"Barlow Condensed","PingFang TC","Microsoft JhengHei",sans-serif;
+    --body:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#0d1114; --surface:#141a1f; --surface-2:#1a2228;
+      --fg:#e4eaee; --muted:#8a97a1; --line:#253038;
+      --accent:#35c4e6; --accent-ink:#08212a; --accent-soft:rgba(53,196,230,.12);
+      --st-ship:#45c98a; --st-beta:#e0a94a; --st-dev:#8a97a1; --st-research:#35c4e6; --st-proto:#8a97a1;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1114; --surface:#141a1f; --surface-2:#1a2228;
+    --fg:#e4eaee; --muted:#8a97a1; --line:#253038;
+    --accent:#35c4e6; --accent-ink:#08212a; --accent-soft:rgba(53,196,230,.12);
+    --st-ship:#45c98a; --st-beta:#e0a94a; --st-dev:#8a97a1; --st-research:#35c4e6; --st-proto:#8a97a1;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:var(--body); font-size:15px; line-height:1.6;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));
+    padding-block:0 56px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  .masthead{padding-top:48px}
+  .eyebrow{
+    margin:0; font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--accent);
+  }
+  h1{
+    margin:10px 0 0; font-family:var(--display); font-weight:700;
+    font-size:clamp(34px,6vw,48px); line-height:1.05; letter-spacing:.01em;
+    text-wrap:balance;
+  }
+  .lede{margin:14px 0 0; max-width:62ch; color:var(--muted); line-height:1.7}
+  .meta{
+    display:flex; flex-wrap:wrap; gap:6px 18px; margin:18px 0 0;
+    font-family:var(--mono); font-size:11.5px; color:var(--muted);
+  }
+  .meta strong{font-weight:500;color:var(--fg)}
+  .rule{height:1px;background:var(--line);margin:28px 0 0}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 24px}
+  .filters button{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:11px;line-height:1;
+    padding:8px 12px;border:1px solid var(--line);border-radius:999px;
+    background:transparent;color:var(--muted);cursor:pointer;
+    transition:background .15s,border-color .15s,color .15s;
+  }
+  .filters button .n{font-size:10px;opacity:.65}
+  .filters button:hover{border-color:var(--accent);color:var(--fg)}
+  .filters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .filters button[aria-pressed="true"] .n{opacity:.8}
+  .filters button:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+    gap:14px;
+  }
+  .card{
+    display:flex;flex-direction:column;gap:9px;min-width:0;
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:16px 16px 15px;
+    transition:border-color .15s;
+  }
+  .card:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .cat{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .status{
+    display:inline-flex;align-items:center;gap:5px;
+    font-family:var(--mono);font-size:10.5px;line-height:1;white-space:nowrap;
+  }
+  .status i{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+  .status[data-s="ship"]{color:var(--st-ship)}
+  .status[data-s="beta"]{color:var(--st-beta)}
+  .status[data-s="dev"]{color:var(--st-dev)}
+  .status[data-s="research"]{color:var(--st-research)}
+  .status[data-s="proto"]{color:var(--st-proto)}
+  .card h2{
+    display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;
+    margin:0;font-family:var(--display);font-weight:600;font-size:21px;line-height:1.15;
+  }
+  .ver{font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--muted)}
+  .path{
+    margin:0;font-family:var(--mono);font-size:10.5px;line-height:1.5;
+    color:var(--accent);word-break:break-word;
+  }
+  .desc{margin:0;font-size:13.5px;line-height:1.65;color:var(--fg)}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:2px 0 0;padding:0}
+  .tags li{
+    font-family:var(--mono);font-size:9.5px;line-height:1.4;color:var(--muted);
+    border:1px solid var(--line);border-radius:4px;padding:2px 5px;background:var(--surface-2);
+  }
+  .foot{
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;
+    margin-top:32px;padding-top:16px;border-top:1px solid var(--line);
+    font-family:var(--mono);font-size:11px;color:var(--muted);
+  }
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">ideaAmplifier / index</p>
+    <h1>專案地圖</h1>
+    <p class="lede">手上正在做、做到一半，和暫時放下來的東西。不用逐項細讀，看名字和一句話就好。</p>
+    <p class="meta">
+      <span>最後更新 <strong>2026-11-04</strong></span>
+      <span><strong id="total">20</strong> 個專案</span>
+    </p>
+    <div class="rule"></div>
+  </header>
+
+  <nav class="filters" aria-label="專案分類">
+    <button type="button" data-cat="all" aria-pressed="true">全部 <span class="n"></span></button>
+    <button type="button" data-cat="live" aria-pressed="false">現場工具 <span class="n"></span></button>
+    <button type="button" data-cat="ai" aria-pressed="false">AI 與語音 <span class="n"></span></button>
+    <button type="button" data-cat="research" aria-pressed="false">研究與教學 <span class="n"></span></button>
+    <button type="button" data-cat="util" aria-pressed="false">小工具 <span class="n"></span></button>
+  </nav>
+
+  <main class="grid" id="grid"></main>
+
+  <footer class="foot">
+    <span>專案清單集中在一份資料裡，更新時只改那一份。</span>
+    <span>2026 · ideaAmplifier</span>
+  </footer>
+</div>
+
+<script>
+// ─── 更新只要改這個陣列：新增一筆專案 = 複製一個物件、改欄位 ───
+// cat: live | ai | research | util
+// status: ship 現役 / beta / dev 開發中 / research 研究中 / proto 原型
+const PROJECTS = [
+  { name:"CueBridge RS", ver:"v0.2.8", cat:"live", status:"ship",
+    path:"SSL Live → REAPER",
+    desc:"控台每個 scene 變成 REAPER 的具名 marker；控台 transport 直接控制錄音與播放；channel list 一鍵建好專案。",
+    tags:["SwiftUI","OSC","HUI","macOS 13+"] },
+
+  { name:"CueBridge RD", ver:"v0.2.4", cat:"live", status:"beta",
+    path:"DiGiCo → REAPER",
+    desc:"走 DiGiCo iPad OSC 協定打點，另有 Session Builder 讀控台 Session Report 建軌道。待真控台完整複驗。",
+    tags:["SwiftUI","OSC","MMC"] },
+
+  { name:"SpaceRanger", ver:"v0.6.2", cat:"live", status:"beta",
+    path:"Stereo in → wider out",
+    desc:"立體聲像 plugin：真 pan、spectral crossover、Haas 延遲，全程 zero-latency。20 人 beta。",
+    tags:["JUCE","VST3","AU","macOS / Windows"] },
+
+  { name:"PhatAnchor", ver:"v0.1.1", cat:"live", status:"dev",
+    path:"Kick In + Kick Out → aligned sum",
+    desc:"同一樂器多支麥的相位與時間對齊。AUTO 只在你按下去時算一次、填旋鈕，不鎖旋鈕。",
+    tags:["JUCE","VST3","AU"] },
+
+  { name:"Baseline", ver:"v1.2.0", cat:"live", status:"dev",
+    path:"LTC → markers → console",
+    desc:"把演出的 LTC 時間碼、marker 與 setlist 整理成一個工作檔，演出時送到控台與外掛載體。",
+    tags:["Electron","JUCE","MIDI","OSC"] },
+
+  { name:"Outboard Recall", ver:"—", cat:"live", status:"dev",
+    path:"Session → Device → settings",
+    desc:"以 Session 加 Device 的架構，管理現場 outboard 器材的設定與 recall。",
+    tags:["React","TypeScript"] },
+
+  { name:"現場響度計量", ver:"—", cat:"live", status:"research",
+    path:"演出 → LUFS / 參考曲線",
+    desc:"分析現場混音的響度與頻譜，建立可重複的混音參考曲線。已分析六場，方向定案。",
+    tags:["Python","量測"] },
+
+  { name:"GestureAir", ver:"—", cat:"live", status:"proto",
+    path:"Webcam → 手勢 → MIDI CC",
+    desc:"讓工程師不用低頭看螢幕：webcam 拍手勢，即時轉成 MIDI CC 送進 DAW 的效果器。",
+    tags:["Python","OpenCV","MIDI"] },
+
+  { name:"Prometheus", ver:"—", cat:"ai", status:"dev",
+    path:"Mic → vocals / bleed",
+    desc:"現場即時人聲與串音分離。嚴格因果、零 lookahead，cIRM 複數頻譜遮罩，約 21 萬參數。",
+    tags:["PyTorch","cIRM","Flask","< 5.3 ms"] },
+
+  { name:"Live Captions", ver:"—", cat:"ai", status:"ship",
+    path:"Mic → text + 誰說的",
+    desc:"面對面談話的即時字幕，Deepgram 串流加上說話者分離；有浮動視窗 App 與 CLI 兩種介面。",
+    tags:["Python","Deepgram","WebSocket"] },
+
+  { name:"Transcribe", ver:"—", cat:"ai", status:"ship",
+    path:"Audio → text + speakers → 段落",
+    desc:"長音檔中文轉錄加說話者分離，一支指令完成。實測比較後選 FunASR。",
+    tags:["FunASR","Python"] },
+
+  { name:"Companion SMAART SPL", ver:"—", cat:"ai", status:"ship",
+    path:"SMAART → Stream Deck",
+    desc:"Bitfocus Companion 模組，把 SMAART 的即時 SPL 顯示在 Stream Deck 按鈕上。",
+    tags:["Node.js","Companion"] },
+
+  { name:"DiGiCo 文件庫", ver:"—", cat:"research", status:"research",
+    path:"手冊 → 可搜尋的全文",
+    desc:"SD / Quantum 原廠手冊全文與 OSC、MiRA 研究筆記，回答問題前先查這裡。",
+    tags:["Markdown","OSC","MiRA"] },
+
+  { name:"硬體 Outboard 課程", ver:"—", cat:"research", status:"dev",
+    path:"講座 → 五部結構",
+    desc:"Getshow 公開講座的完整五部內容，從諧波、變壓器到實際操作與聽感判讀。",
+    tags:["教學","簡報"] },
+
+  { name:"立體聲收音指南", ver:"—", cat:"research", status:"dev",
+    path:"麥克風擺位 → 立體聲",
+    desc:"教學簡報，整理立體聲收音的各種擺法與取捨，多個版本並行。",
+    tags:["教學","簡報"] },
+
+  { name:"SysPlot", ver:"—", cat:"util", status:"ship",
+    path:"節點 → 線材 → 架構圖",
+    desc:"音響系統架構圖編輯器：console、DSP、喇叭、麥克風用 Dante / MADI / MIDI / 類比連接，A* 正交路由。",
+    tags:["HTML","SVG","零依賴"] },
+
+  { name:"MIDI Tester", ver:"—", cat:"util", status:"ship",
+    path:"MIDI in ⇄ MIDI out",
+    desc:"MIDI 收發監看，SwiftUI 加 CoreMIDI，零依賴；測試時開虛擬埠。",
+    tags:["SwiftUI","CoreMIDI"] },
+
+  { name:"OSC Tester", ver:"—", cat:"util", status:"ship",
+    path:"OSC in ⇄ OSC out",
+    desc:"OSC 收發監看，也能模擬 DiGiCo 控台，用來驗證 CueBridge RD 的協定假設。",
+    tags:["Swift","OSC"] },
+
+  { name:"Podcast Cutter", ver:"—", cat:"util", status:"ship",
+    path:"多軌 → 去靜音 → FCPXML",
+    desc:"多軌人聲去靜音工具，調好門檻後輸出 FCPXML，直接拖進 Final Cut Pro。",
+    tags:["Python","FCPXML","ffmpeg"] },
+
+  { name:"Image Grabber", ver:"—", cat:"util", status:"ship",
+    path:"網頁 → 圖片 → ZIP",
+    desc:"Chrome 擴展，批量抓取網頁圖片；支援懶加載、格式過濾，一次打包下載。",
+    tags:["Chrome Extension"] }
+];
+
+const STATUS = { ship:"現役", beta:"Beta", dev:"開發中", research:"研究中", proto:"原型" };
+const CAT = { live:"LIVE", ai:"AI / VOICE", research:"RESEARCH", util:"UTILITY" };
+
+const grid = document.getElementById("grid");
+
+function card(p){
+  const el = document.createElement("article");
+  el.className = "card";
+  el.dataset.cat = p.cat;
+  const tags = p.tags.map(t => `<li>${t}</li>`).join("");
+  el.innerHTML = `
+    <div class="card-top">
+      <span class="cat">${CAT[p.cat]}</span>
+      <span class="status" data-s="${p.status}"><i></i>${STATUS[p.status]}</span>
+    </div>
+    <h2>${p.name}${p.ver && p.ver !== "—" ? `<span class="ver">${p.ver}</span>` : ""}</h2>
+    <p class="path">${p.path}</p>
+    <p class="desc">${p.desc}</p>
+    <ul class="tags">${tags}</ul>`;
+  return el;
+}
+
+PROJECTS.forEach(p => grid.appendChild(card(p)));
+
+const buttons = [...document.querySelectorAll(".filters button")];
+const counts = { all: PROJECTS.length };
+for (const p of PROJECTS) counts[p.cat] = (counts[p.cat] || 0) + 1;
+buttons.forEach(b => { b.querySelector(".n").textContent = counts[b.dataset.cat] ?? 0; });
+document.getElementById("total").textContent = PROJECTS.length;
+
+buttons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    buttons.forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+    const cat = btn.dataset.cat;
+    for (const el of grid.children) el.hidden = cat !== "all" && el.dataset.cat !== cat;
+  });
+});
+</script>
+
+</body>
+</html>
