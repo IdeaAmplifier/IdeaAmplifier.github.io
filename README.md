@@ -1,1 +1,1 @@
-# IdeaAmp.github.io
+# IdeaAmplifier.github.io
